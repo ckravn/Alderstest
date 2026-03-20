@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Funktionel Alderstest — longevity.chris</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #102303;
+    --lime: #C2FF4E;
+    --white: #ffffff;
+    --grey: #A0A0A0;
+    --card: #162A06;
+    --card2: #1c3208;
+    --red: #FF5040;
+    --yellow: #FFD23C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    font-family: 'Poppins', sans-serif;
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; }
+  .screen.active { display: flex; }
+  #tc.active, #rpage.active { display: block; }
+
+  /* ─── COVER ─── */
+  #cover {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    overflow-y: auto;
+    background: var(--bg);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px 40px;
+    text-align: center;
+  }
+  .cover-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 3px;
+    color: var(--lime); text-transform: uppercase; margin-bottom: 20px;
+  }
+  .cover-title {
+    font-size: clamp(44px, 12vw, 76px);
+    font-weight: 900; line-height: .95; margin-bottom: 6px;
+  }
+  .cover-title em { color: var(--lime); font-style: normal; }
+  .cover-bar { width: 48px; height: 3px; background: var(--lime); border-radius: 2px; margin: 22px auto; }
+  .cover-sub { font-size: 14px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+  .cover-sub2 { font-size: 12px; color: var(--grey); margin-bottom: 36px; }
+
+  /* Onboarding fields */
+  .onboard-card {
+    width: 100%; max-width: 420px;
+    background: var(--card); border-radius: 18px;
+    padding: 24px 20px; margin-bottom: 24px; text-align: left;
+  }
+  .onboard-title { font-size: 11px; font-weight: 700; color: var(--lime); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+  .onboard-row { display: flex; gap: 12px; margin-bottom: 14px; }
+  .onboard-field { flex: 1; }
+  .onboard-field:last-child { margin-bottom: 0; }
+  .field-lbl { font-size: 11px; color: var(--grey); margin-bottom: 5px; display: block; }
+  .fi {
+    width: 100%; background: var(--bg);
+    border: 1.5px solid rgba(194,255,78,.25);
+    border-radius: 10px; padding: 11px 14px;
+    font-family: 'Poppins', sans-serif; font-size: 14px;
+    font-weight: 600; color: var(--white); outline: none;
+    transition: border-color .2s;
+  }
+  .fi:focus { border-color: var(--lime); }
+  .fi::placeholder { color: var(--grey); font-weight: 400; font-size: 12px; }
+  select.fi option { background: #1a3a06; color: var(--white); }
+
+  .btn-lime {
+    background: var(--lime); color: var(--bg);
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px;
+    border: none; border-radius: 50px; padding: 16px 40px;
+    cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
+    transition: transform .15s, box-shadow .15s; width: 100%; max-width: 420px;
+    margin-bottom: 12px;
+  }
+  .btn-lime:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(194,255,78,.3); }
+  .cover-note { font-size: 11px; color: var(--grey); }
+
+  /* ─── TOP NAV ─── */
+  .top-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px 12px;
+    position: sticky; top: 0; background: var(--bg); z-index: 100;
+    border-bottom: 1px solid rgba(194,255,78,.08);
+  }
+  .nav-handle { font-size: 12px; font-weight: 700; color: var(--lime); }
+  .nav-counter {
+    font-size: 11px; font-weight: 700; color: var(--lime);
+    background: var(--card); padding: 4px 12px; border-radius: 20px;
+  }
+  .prog-wrap { height: 3px; background: var(--card); position: sticky; top: 51px; z-index: 99; }
+  .prog-fill { height: 100%; background: var(--lime); transition: width .4s ease; border-radius: 2px; }
+
+  /* ─── TEST PAGE ─── */
+  .tpage { padding: 22px 20px 110px; max-width: 600px; margin: 0 auto; }
+  .test-chip-lbl {
+    display: inline-flex; align-items: center;
+    background: var(--lime); color: var(--bg);
+    font-size: 9px; font-weight: 700; letter-spacing: 2px;
+    padding: 4px 11px; border-radius: 20px; margin-bottom: 12px; text-transform: uppercase;
+  }
+  .tname { font-size: 24px; font-weight: 900; color: var(--lime); line-height: 1.1; margin-bottom: 3px; }
+  .tsub { font-size: 12px; font-weight: 500; color: var(--grey); margin-bottom: 14px; }
+  .tbar { width: 36px; height: 2px; background: var(--lime); border-radius: 2px; margin-bottom: 16px; }
+
+  .why-card {
+    background: var(--card); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 18px;
+  }
+  .why-lbl { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: var(--lime); margin-bottom: 6px; text-transform: uppercase; }
+  .why-txt { font-size: 12px; color: var(--grey); line-height: 1.55; }
+
+  .steps-lbl { font-size: 11px; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .steps-list { margin-bottom: 16px; }
+  .step-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 12px; background: var(--card); border-radius: 10px; margin-bottom: 7px;
+  }
+  .snum {
+    min-width: 22px; height: 22px; background: var(--lime); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--bg); flex-shrink: 0; margin-top: 1px;
+  }
+  .stxt { font-size: 12px; color: var(--white); line-height: 1.45; }
+
+  .tip-card {
+    background: var(--card2); border-radius: 10px;
+    padding: 11px 14px; margin-bottom: 18px;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .tip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .tip-lbl { font-size: 9px; font-weight: 700; color: var(--lime); letter-spacing: 2px; margin-bottom: 3px; text-transform: uppercase; }
+  .tip-txt { font-size: 12px; color: var(--grey); line-height: 1.45; }
+
+  /* Timer */
+  .timer-block {
+    background: var(--card); border-radius: 14px;
+    padding: 20px; margin-bottom: 18px; text-align: center;
+  }
+  .timer-lbl { font-size: 10px; font-weight: 700; color: var(--lime); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .timer-display {
+    font-size: 56px; font-weight: 900; color: var(--white);
+    line-height: 1; margin-bottom: 14px; font-variant-numeric: tabular-nums;
+  }
+  .timer-btns { display: flex; gap: 10px; justify-content: center; }
+  .tbtn {
+    background: var(--bg); color: var(--white);
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px;
+    border: none; border-radius: 50px; padding: 10px 22px; cursor: pointer;
+    transition: background .15s;
+  }
+  .tbtn.start { background: var(--lime); color: var(--bg); }
+  .tbtn:hover { opacity: .85; }
+
+  /* Record */
+  .rec-lbl { font-size: 12px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+  .rec-fields { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .fgroup { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+  .flbl { font-size: 10px; color: var(--grey); font-weight: 500; }
+
+  /* Scoring table */
+  .scr-lbl { font-size: 11px; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .scr-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  .scr-tbl th {
+    font-size: 8px; font-weight: 700; color: var(--lime);
+    letter-spacing: 1px; text-align: left; padding: 5px 6px;
+    border-bottom: 1px solid rgba(194,255,78,.15); text-transform: uppercase;
+  }
+  .scr-tbl td {
+    font-size: 11px; color: var(--grey); padding: 6px 6px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    vertical-align: top; line-height: 1.35;
+  }
+  .scr-tbl td:first-child { color: var(--white); font-weight: 600; font-size: 11px; }
+  .cg { color: var(--lime); font-weight: 600; }
+  .cy { color: var(--yellow); font-weight: 600; }
+  .cr { color: var(--red); font-weight: 600; }
+
+  /* Nav buttons */
+  .nav-btns {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, var(--bg) 75%, transparent);
+    padding: 14px 20px 28px; display: flex; gap: 10px;
+    max-width: 600px; margin: 0 auto;
+  }
+  .btn-prev {
+    background: var(--card); color: var(--white);
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14px;
+    border: none; border-radius: 50px; padding: 14px 18px; cursor: pointer;
+  }
+  .btn-next {
+    background: var(--lime); color: var(--bg);
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 14px;
+    border: none; border-radius: 50px; padding: 14px 0;
+    cursor: pointer; flex: 1; text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* ─── RESULTS ─── */
+  #rpage { padding: 24px 20px 60px; max-width: 600px; margin: 0 auto; }
+
+  .r-top { text-align: center; margin-bottom: 28px; }
+  .r-handle { font-size: 10px; font-weight: 700; color: var(--lime); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+  .r-name { font-size: 13px; color: var(--grey); margin-bottom: 4px; }
+  .r-date { font-size: 11px; color: var(--grey); margin-top: 6px; }
+
+  /* Bio age card */
+  .biocard {
+    background: var(--card); border-radius: 20px;
+    padding: 28px 24px; margin-bottom: 20px;
+    border: 2px solid rgba(194,255,78,.2);
+    position: relative; overflow: hidden; text-align: center;
+  }
+  .biocard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--lime); }
+  .biocard-lbl { font-size: 9px; font-weight: 700; color: var(--lime); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+  .bioage-row { display: flex; align-items: baseline; justify-content: center; gap: 10px; margin-bottom: 14px; }
+  .bioage-num { font-size: 88px; font-weight: 900; color: var(--lime); line-height: 1; }
+  .bioage-unit { font-size: 32px; font-weight: 700; color: var(--lime); }
+  .bioage-diff {
+    display: inline-block; padding: 6px 18px; border-radius: 50px;
+    font-size: 13px; font-weight: 700;
+  }
+  .bioage-diff.young { background: rgba(194,255,78,.15); color: var(--lime); }
+  .bioage-diff.match { background: rgba(255,210,60,.1); color: var(--yellow); }
+  .bioage-diff.older { background: rgba(255,80,64,.1); color: var(--red); }
+
+  /* Score pills */
+  .score-pills { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+  .spill { background: var(--card); border-radius: 12px; padding: 14px 8px; text-align: center; }
+  .spill-n { font-size: 30px; font-weight: 900; line-height: 1; }
+  .spill-l { font-size: 10px; color: var(--grey); margin-top: 2px; }
+  .spill-g .spill-n { color: var(--lime); }
+  .spill-y .spill-n { color: var(--yellow); }
+  .spill-r .spill-n { color: var(--red); }
+
+  /* Result rows */
+  .rrow {
+    background: var(--card); border-radius: 12px;
+    padding: 13px 14px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rrow-icon { font-size: 18px; flex-shrink: 0; }
+  .rrow-body { flex: 1; min-width: 0; }
+  .rrow-name { font-size: 12px; font-weight: 700; }
+  .rrow-val { font-size: 11px; color: var(--grey); margin-top: 2px; }
+  .rrow-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot-g { background: var(--lime); }
+  .dot-y { background: var(--yellow); }
+  .dot-r { background: var(--red); }
+  .dot-n { background: var(--grey); opacity: .3; }
+
+  /* Weight explanation */
+  .weight-card {
+    background: var(--card); border-radius: 14px;
+    padding: 16px 18px; margin: 20px 0;
+  }
+  .wcard-title { font-size: 10px; font-weight: 700; color: var(--lime); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .wrow { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .wbar-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 6px; overflow: hidden; }
+  .wbar-fill { height: 100%; background: var(--lime); border-radius: 4px; }
+  .wname { font-size: 11px; color: var(--grey); width: 120px; flex-shrink: 0; }
+  .wpct { font-size: 11px; font-weight: 700; color: var(--lime); width: 32px; text-align: right; flex-shrink: 0; }
+
+  /* Retest */
+  .retest-card { background: var(--card); border-radius: 14px; padding: 18px; margin: 20px 0; }
+  .retest-title { font-size: 11px; font-weight: 700; color: var(--lime); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .retest-row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .rtf { flex: 1; }
+  .rtlbl { font-size: 10px; color: var(--grey); margin-bottom: 4px; }
+  .rt-input {
+    width: 100%; background: var(--bg);
+    border: 1.5px solid rgba(194,255,78,.2); border-radius: 8px;
+    padding: 10px 12px; font-family: 'Poppins', sans-serif;
+    font-size: 13px; color: var(--white); outline: none;
+  }
+  .rt-input:focus { border-color: var(--lime); }
+
+  /* Save/export buttons */
+  .save-section { margin: 24px 0 8px; }
+  .save-title { font-size: 10px; font-weight: 700; color: var(--grey); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .save-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .btn-save-full { grid-column: 1 / -1; }
+  .btn-save {
+    background: var(--card); color: var(--lime);
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px;
+    border: 1.5px solid rgba(194,255,78,.3); border-radius: 12px;
+    padding: 14px 12px; cursor: pointer; text-align: center;
+    transition: border-color .15s, background .15s; line-height: 1.3;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+  }
+  .btn-save:hover { border-color: var(--lime); background: rgba(194,255,78,.06); }
+  .btn-save small { display: block; color: var(--grey); font-weight: 400; font-size: 10px; line-height: 1.4; }
+  .btn-restart {
+    width: 100%; background: transparent; color: var(--grey);
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 500;
+    border: none; padding: 10px; cursor: pointer; margin-top: 6px;
+  }
+
+  /* Saved indicator */
+  .saved-badge {
+    display: none; background: rgba(194,255,78,.12);
+    border-radius: 8px; padding: 8px 14px; text-align: center;
+    font-size: 12px; color: var(--lime); font-weight: 600; margin-bottom: 10px;
+  }
+
+  .refs { margin-top: 28px; }
+  .refs-title { font-size: 10px; font-weight: 700; color: var(--grey); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .ref { font-size: 10px; color: rgba(160,160,160,.55); line-height: 1.5; margin-bottom: 5px; }
+  .ref strong { color: var(--grey); }
+  .r-handle-bottom { text-align: center; font-size: 12px; font-weight: 700; color: var(--lime); margin-top: 24px; padding-bottom: 12px; }
+
+  @media print {
+    #cover, #tc, .save-section, .btn-restart, .top-nav, .prog-wrap, .nav-btns { display: none !important; }
+    #rpage { display: block !important; padding: 0 16px !important; }
+    body { background: white !important; color: black !important; }
+    .biocard, .score-pills, .rrow, .weight-card, .retest-card, .refs {
+      background: #f5f5f5 !important; border-color: #ccc !important; break-inside: avoid;
+    }
+    .bioage-num { color: #1a4a00 !important; }
+    .bioage-unit, .biocard-lbl { color: #333 !important; }
+    .bioage-diff { color: #333 !important; background: #eee !important; }
+    .spill-g .spill-n { color: #2a6a00 !important; }
+    .spill-y .spill-n { color: #a06000 !important; }
+    .spill-r .spill-n { color: #a00000 !important; }
+    .spill-l, .rrow-val, .wname, .wpct, .ref, .rtlbl { color: #555 !important; }
+    .rrow-name, .wcard-title, .retest-title, .r-handle, .r-name, .r-date, .r-handle-bottom { color: black !important; }
+    .wbar-fill { background: #2a6a00 !important; }
+    .wbar-wrap { background: #ddd !important; }
+    .dot-g { background: #2a6a00 !important; }
+    .dot-y { background: #a06000 !important; }
+    .dot-r { background: #a00000 !important; }
+    .rt-input { color: black !important; background: white !important; border-color: #ccc !important; }
+    .refs-title { color: #333 !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div id="cover" class="screen active">
+  <div class="cover-label">longevity.chris</div>
+  <h1 class="cover-title">FUNKTIONEL<br><em>ALDERSTEST</em></h1>
+  <div class="cover-bar"></div>
+  <p class="cover-sub">9 tests · Ingen udstyr nødvendigt</p>
+
+  <div class="onboard-card">
+    <div class="onboard-title">Hvem er du?</div>
+    <div class="onboard-row">
+      <div class="onboard-field">
+        <label class="field-lbl">Fornavn</label>
+        <input class="fi" id="ob-name" type="text" placeholder="f.eks. Mikkel" autocomplete="given-name">
+      </div>
+      <div class="onboard-field">
+        <label class="field-lbl">Alder</label>
+        <input class="fi" id="ob-age" type="number" inputmode="numeric" placeholder="f.eks. 34" min="16" max="99">
+      </div>
+    </div>
+    <div class="onboard-row">
+      <div class="onboard-field">
+        <label class="field-lbl">Køn</label>
+        <select class="fi" id="ob-sex">
+          <option value="">Vælg</option>
+          <option value="m">Mand</option>
+          <option value="f">Kvinde</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-lime" onclick="startTest()">Start test →</button>
+  <p class="cover-note">Sæt ca. 60 min af</p>
+  <div style="margin-top:18px;font-size:12px;font-weight:700;color:var(--lime);">@longevity.chris</div>
+</div>
+
+<!-- ══ TEST CONTAINER ══ -->
+<div id="tc" class="screen">
+  <div class="top-nav">
+    <span class="nav-handle">@longevity.chris</span>
+    <span class="nav-counter" id="nc">1 / 9</span>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="pf" style="width:11%"></div></div>
+  <div id="tcontent"></div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div id="rpage" class="screen">
+  <div class="r-top">
+    <div class="r-handle">@longevity.chris</div>
+    <div class="r-name" id="r-name"></div>
+    <div class="r-date" id="r-date"></div>
+  </div>
+
+  <div class="biocard">
+    <div class="biocard-lbl">Estimeret funktionel alder</div>
+    <div class="bioage-row">
+      <span class="bioage-num" id="ba-num">—</span>
+      <span class="bioage-unit">år</span>
+    </div>
+    <div class="bioage-diff" id="ba-diff"></div>
+  </div>
+
+  <div class="score-pills">
+    <div class="spill spill-g"><div class="spill-n" id="cg">0</div><div class="spill-l">🟢 Fremragende</div></div>
+    <div class="spill spill-y"><div class="spill-n" id="cy">0</div><div class="spill-l">🟡 Gennemsnit</div></div>
+    <div class="spill spill-r"><div class="spill-n" id="cr">0</div><div class="spill-l">🔴 Fokus</div></div>
+  </div>
+
+  <div id="rlist"></div>
+
+  <div class="weight-card">
+    <div class="wcard-title">Vægtning i beregningen</div>
+    <div id="weight-bars"></div>
+  </div>
+
+  <div class="retest-card">
+    <div class="retest-title">📅 Næste gentest</div>
+    <div class="retest-row">
+      <div class="rtf"><div class="rtlbl">Testdato</div><input class="rt-input" type="date" id="bd"></div>
+      <div class="rtf"><div class="rtlbl">Næste gentest (+3 mdr.)</div><input class="rt-input" type="date" id="rd" readonly style="color:var(--lime)"></div>
+    </div>
+    <div style="font-size:11px;color:var(--grey);line-height:1.5;">Det giver mening at genteste hver 3. måned.</div>
+  </div>
+
+  <div class="save-section">
+    <div class="save-title">Gem dine resultater</div>
+    <div id="saved-badge" class="saved-badge">✓ Gemt i din browser</div>
+    <div class="save-grid">
+      <button class="btn-save" onclick="saveLocal()">
+        💾 Gem til mig selv
+        <small>Gemt i denne browser</small>
+      </button>
+      <button class="btn-save" onclick="shareText()">
+        📋 Send til coach
+        <small>Kopiér og send til @longevity.chris</small>
+      </button>
+      <button class="btn-save btn-save-full" onclick="window.scrollTo(0,0);setTimeout(()=>window.print(),100)">
+        🖨 Gem som PDF
+        <small>Udskriv eller gem som PDF-fil</small>
+      </button>
+    </div>
+    <button class="btn-restart" onclick="restartTest()">↺ Start forfra</button>
+  </div>
+
+  <div class="refs">
+    <div class="refs-title">Videnskabelige referencer</div>
+    <div class="ref"><strong>VO₂max & livslængde:</strong> Kodama et al. (2009). JAMA, 301(19), 2024–2035.</div>
+    <div class="ref"><strong>Grebsstyrke:</strong> Leong et al. (2015). Lancet, 386(9990), 266–273.</div>
+    <div class="ref"><strong>Hvilepuls/HRV:</strong> Task Force ESC/NASPE (1996). Eur Heart J, 17, 354–381.</div>
+    <div class="ref"><strong>Balance:</strong> Araujo et al. (2022). BJSM, 56(17), 975–980.</div>
+    <div class="ref"><strong>Push-ups:</strong> Yang et al. (2019). JAMA Network Open.</div>
+    <div class="ref"><strong>Sit-Rise Test:</strong> Brito et al. (2012). Eur J Cardiol, 9(10), 1289–1295.</div>
+  </div>
+  <div class="r-handle-bottom">@longevity.chris</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+
+/*  Biological age algorithm
+    Each test produces a score 0–3: 3=excellent, 2=good, 1=average, 0=poor
+    Weighted sum → delta years added/subtracted from chronological age
+    Weights based on peer-reviewed longitudinal associations
+    Weight sum = 1.0
+*/
+const WEIGHTS = [
+  { id: 'cooper',   label: 'VO₂max (Cooper)',    w: 0.22 },
+  { id: 'deadhang', label: 'Grebsstyrke',        w: 0.16 },
+  { id: 'hrv',      label: 'Hvilepuls / HRV',    w: 0.15 },
+  { id: 'balance',  label: 'Balance',            w: 0.13 },
+  { id: 'pushups',  label: 'Push-ups',           w: 0.10 },
+  { id: 'squats',   label: 'Squats',             w: 0.09 },
+  { id: 'sitrise',  label: 'Sit-Rise Test',      w: 0.07 },
+  { id: 'sitreach', label: 'Fleksibilitet',      w: 0.05 },
+  { id: 'reaktion', label: 'Reaktionstid',       w: 0.03 },
+];
+
+// Score function: returns 0–3 for each test based on entered values + age/sex
+function scoreTest(id, vals, age, sex) {
+  const m = sex === 'm';
+  const v = k => parseFloat(vals[k]) || 0;
+  if (id === 'squats') {
+    const n = v('sq_n');
+    if (!n) return null;
+    if (age <= 40) return n > (m?60:50) ? 4 : n > (m?40:33) ? 3 : n > (m?22:18) ? 2 : 1;
+    return n > (m?50:42) ? 4 : n > (m?34:27) ? 3 : n > (m?18:14) ? 2 : 1;
+  }
+  if (id === 'pushups') {
+    const n = v('pu_n');
+    if (!n) return null;
+    if (age <= 40) return n > (m?50:30) ? 4 : n > (m?30:15) ? 3 : n > (m?13:7) ? 2 : 1;
+    return n > (m?38:22) ? 4 : n > (m?22:12) ? 3 : n > (m?8:4) ? 2 : 1;
+  }
+  if (id === 'sitreach') {
+    const cm = v('sr_cm');
+    if (cm === 0 && !vals['sr_cm']) return null;
+    // Elite = klart over grøn grænse
+    if (age <= 30) return cm > 25 ? 4 : cm > 15 ? 3 : cm >= 5 ? 2 : 1;
+    if (age <= 50) return cm > 20 ? 4 : cm > 10 ? 3 : cm >= 0 ? 2 : 1;
+    return cm > 15 ? 4 : cm > 5 ? 3 : cm >= -5 ? 2 : 1;
+  }
+  if (id === 'balance') {
+    const r = v('ba_r'), l = v('ba_l');
+    if (!r && !l) return null;
+    const avg = (r && l) ? (r + l) / 2 : (r || l);
+    // Elite = kan holde markant over grøn grænse
+    if (age <= 30) return avg > 45 ? 4 : avg > 25 ? 3 : avg > 10 ? 2 : avg > 3 ? 1 : 0;
+    if (age <= 50) return avg > 35 ? 4 : avg > 18 ? 3 : avg > 5 ? 2 : avg > 3 ? 1 : 0;
+    return avg > 25 ? 4 : avg > 10 ? 3 : avg > 3 ? 2 : avg > 0 ? 1 : 0;
+  }
+  if (id === 'cooper') {
+    const dist = v('co_m');
+    if (!dist) return null;
+    // Elite = løbe-niveau svarende til VO2max ~55+ (mænd) / ~48+ (kvinder)
+    if (age <= 29) return dist > (m?3200:2800) ? 4 : dist > (m?2800:2400) ? 3 : dist > (m?2200:1800) ? 2 : 1;
+    if (age <= 39) return dist > (m?3100:2700) ? 4 : dist > (m?2700:2300) ? 3 : dist > (m?2100:1700) ? 2 : 1;
+    return dist > (m?2900:2500) ? 4 : dist > (m?2500:2100) ? 3 : dist > (m?1900:1500) ? 2 : 1;
+  }
+  if (id === 'deadhang') {
+    const s = v('dh_s');
+    if (!s) return null;
+    if (age <= 29) return s > 120 ? 4 : s > 60 ? 3 : s > 30 ? 2 : 1;
+    if (age <= 49) return s > 90 ? 4 : s > 45 ? 3 : s > 20 ? 2 : 1;
+    return s > 60 ? 4 : s > 30 ? 3 : s > 10 ? 2 : 1;
+  }
+  if (id === 'reaktion') {
+    const ms = v('rt_ms');
+    if (!ms) return null;
+    return ms < 150 ? 4 : ms < 180 ? 3 : ms < 250 ? 2 : ms < 300 ? 1 : 0;
+  }
+  if (id === 'sitrise') {
+    const sc = v('si_s');
+    if (!sc && sc !== 0) return null;
+    // 10/10 with no wobble = elite
+    return sc >= 10 ? 4 : sc >= 8 ? 3 : sc >= 5 ? 2 : sc >= 3 ? 1 : sc > 0 ? 0 : null;
+  }
+  if (id === 'hrv') {
+    const hr = v('hv_p');
+    const hrv = v('hv_h');
+    let s = null;
+    // Elite HR: atletisk hvilepuls < 45 bpm; elite HRV: > 100 ms
+    if (hr > 0) { s = hr < 45 ? 4 : hr < 55 ? 3 : hr < 70 ? 2 : 1; }
+    if (hrv > 0) {
+      const hs = hrv > 100 ? 4 : hrv > 70 ? 3 : hrv > 40 ? 2 : 1;
+      s = s === null ? hs : Math.min(s, hs);
+    }
+    return s;
+  }
+  return null;
+}
+
+// Delta years per score level (relative to average = score 2)
+// score 3 → subtract years, score 0 → add years
+// Score 4 = elite (klart over grøn grænse)
+// Score 3 = fremragende (grøn), 2 = gennemsnit (gul), 1 = under (rød), 0 = meget under (rød)
+const DELTA = { 4: -7, 3: -4, 2: 0, 1: 3, 0: 8 };
+const CAP_YOUNG = -12; // Maks 12 år yngre — understøttet af VO₂max/multi-test litteratur
+const CAP_OLD   = 15;   // maks 15 år ældre
+
+function calcBioAge(vals, age, sex) {
+  let weightedDelta = 0;
+  let totalWeight = 0;
+  const details = {};
+  WEIGHTS.forEach(({ id, w }) => {
+    const s = scoreTest(id, vals, age, sex);
+    details[id] = s;
+    if (s !== null) {
+      weightedDelta += DELTA[s] * w;
+      totalWeight += w;
+    }
+  });
+  if (totalWeight < 0.3) return { age: null, details };
+  const raw = weightedDelta / totalWeight;
+  const capped = Math.max(CAP_YOUNG, Math.min(CAP_OLD, raw));
+  return { age: Math.round(age + capped), delta: Math.round(capped), details };
+}
+
+const TESTS = [
+  {
+    id: 'squats', icon: '🦵', num: 1,
+    name: 'SQUATS TO FAILURE',
+    subtitle: 'Styrke & udholdenhed — underkrop',
+    why: 'Benstyrke forudsiger overlevelse de næste 5 år og reducerer risiko for hjertesygdom, fald og metabolisk sygdom. En af de stærkeste single-test-prædiktorer for livslængde.',
+    steps: [
+      'Fødder skulderbredt. Arme over brystet eller strakt frem.',
+      'Gå ned til 90° — lårene parallelle med gulvet.',
+      'Pres op til startposition. Én gentagelse.',
+      'Fortsæt uden stop til teknikken bryder sammen.',
+    ],
+    tip: 'Stop præcis når du ikke kan holde fuld dybde — ikke efter.',
+    timer: false,
+    fields: [{ key: 'sq_n', label: 'Antal squats', ph: 'f.eks. 32' }],
+    scoring: [
+      ['18–40 år', m => m ? '> 40' : '> 33', m => m ? '22–40' : '18–33', m => m ? '< 22' : '< 18'],
+      ['41–60 år', m => m ? '> 34' : '> 27', m => m ? '18–34' : '14–27', m => m ? '< 18' : '< 14'],
+    ],
+  },
+  {
+    id: 'pushups', icon: '💪', num: 2,
+    name: 'PUSH-UPS TO FAILURE',
+    subtitle: 'Overkropsstyrke & muskelkraft',
+    why: 'Mænd der klarer > 40 push-ups har 96 % lavere risiko for hjertesygdom end dem der klarer < 10 (Harvard, 2019). Push-up-kapacitet afspejler reel funktionel styrke.',
+    steps: [
+      'Hænder lidt bredere end skulderbredde, krop i én ret linje.',
+      'Sænk brystet til 2–3 cm fra gulvet — pres op til strakte arme.',
+      'Hoften må hverken hæve eller sænke.',
+      'Stop når linjen brydes.',
+    ],
+    tip: 'Kvinder kan bruge knævariant — notér det. Ingen halve gentagelser.',
+    timer: false,
+    fields: [
+      { key: 'pu_n', label: 'Antal push-ups (fuld)', ph: 'f.eks. 18' },
+      { key: 'pu_k', label: 'Knævariant (hvis brugt)', ph: 'f.eks. 0' },
+    ],
+    scoring: [
+      ['18–40 år', m => m ? '> 30' : '> 15', m => m ? '13–30' : '7–15', m => m ? '< 13' : '< 7'],
+      ['41–60 år', m => m ? '> 22' : '> 12', m => m ? '8–22' : '4–12', m => m ? '< 8' : '< 4'],
+    ],
+  },
+  {
+    id: 'sitreach', icon: '🤸', num: 3,
+    name: 'SIT AND REACH',
+    subtitle: 'Fleksibilitet — baglår & ryg',
+    why: 'Lav fleksibilitet korrelerer med arteriel stivhed — en direkte markør for kardiovaskulær alder. Stive muskler øger skaderisiko og nedsætter bevægelseskvaliteten i alle øvrige tests.',
+    steps: [
+      'Sid med strakte ben mod en væg. Nulpunkt ved hælene.',
+      'Pust ud og nå frem med begge hænder. Hold 2 sek.',
+      'Mål fingerspidsernes position fra nulpunktet.',
+      'Positivt = forbi hælene. Negativt = ikke nået hælene.',
+    ],
+    tip: 'Varm op med 5 min. gang. Mål 3 gange — brug det bedste.',
+    timer: false,
+    fields: [{ key: 'sr_cm', label: 'Afstand (cm) fra hællinje', ph: 'f.eks. +8 eller -3' }],
+    scoring: [
+      ['18–30 år', () => '> +25 cm (elite) / > +15', () => '+5 til +15', () => '< +5 cm'],
+      ['31–50 år', () => '> +20 cm (elite) / > +10', () => '0 til +10',   () => '< 0 cm'],
+      ['51+ år',   () => '> +15 cm (elite) / > +5',  () => '-5 til +5',   () => '< -5 cm'],
+    ],
+  },
+  {
+    id: 'balance', icon: '🦩', num: 4,
+    name: 'ETBENS BALANCE',
+    subtitle: 'Neurologisk funktion — lukkede øjne',
+    why: 'Manglende evne til at balancere på ét ben med lukkede øjne i 10 sek. er forbundet med doblet risiko for tidlig død over 10 år (Araujo et al., BJSM 2022).',
+    steps: [
+      'Barfodet på hårdt, fladt underlag. Stå tæt på en væg.',
+      'Luk øjnene — løft ét ben ca. 10 cm.',
+      'Start stopur ved øjenluk. Stop ved foden sættes ned eller balance tabes.',
+      'Test begge ben — 2 forsøg per ben.',
+    ],
+    tip: 'Stor forskel mellem benene (> 5 sek.) kan indikere en skævhed — notér det.',
+    timer: true,
+    timerLabel: 'Stopur — balance',
+    fields: [
+      { key: 'ba_l', label: 'Venstre ben (sek.)', ph: 'f.eks. 11' },
+      { key: 'ba_r', label: 'Højre ben (sek.)', ph: 'f.eks. 14' },
+    ],
+    scoring: [
+      ['18–30 år', () => '> 25 sek.', () => '10–25 sek.', () => '< 10 sek.'],
+      ['31–50 år', () => '> 18 sek.', () => '5–18 sek.',  () => '< 5 sek.'],
+      ['51+ år',   () => '> 10 sek.', () => '3–10 sek.',  () => '< 3 sek.'],
+    ],
+  },
+  {
+    id: 'cooper', icon: '🏃', num: 5,
+    name: 'COOPER TEST — 12 MIN LØB',
+    subtitle: 'Kondital (VO₂max estimat)',
+    why: 'VO₂max er den enkelt bedste prædiktor for livslængde. Lav kondition øger risiko for tidlig død mere end rygning, overvægt og diabetes tilsammen (Kodama et al., JAMA 2009).',
+    steps: [
+      'Find 400 m løbebane eller brug GPS (Strava, Garmin, Apple Watch).',
+      'Varm op 5–8 min. Let gang og dynamisk stræk.',
+      'Løb så langt du kan på præcis 12 minutter.',
+      'Notér den tilbagelagte distance i meter.',
+    ],
+    tip: 'Lav altid som test nr. 5. Start jævnt — ikke sprint fra start.',
+    timer: true,
+    timerLabel: '12-minutters timer',
+    timerDuration: 720,
+    fields: [
+      { key: 'co_m', label: 'Distance (meter)', ph: 'f.eks. 2350' },
+    ],
+    scoring: [
+      ['18–29 år', m => m ? '> 2800 m' : '> 2400 m', m => m ? '2200–2800' : '1800–2400', m => m ? '< 2200 m' : '< 1800 m'],
+      ['30–39 år', m => m ? '> 2700 m' : '> 2300 m', m => m ? '2100–2700' : '1700–2300', m => m ? '< 2100 m' : '< 1700 m'],
+      ['40–49 år', m => m ? '> 2500 m' : '> 2100 m', m => m ? '1900–2500' : '1500–2100', m => m ? '< 1900 m' : '< 1500 m'],
+    ],
+  },
+  {
+    id: 'deadhang', icon: '🙌', num: 6,
+    name: 'DEAD HANG',
+    subtitle: 'Grebsstyrke & skulderstabilitet',
+    why: 'Hvert 5 kg fald i grebsstyrke øger risiko for hjertedød med 17 % — stærkere prædiktor end blodtryk (Leong et al., Lancet 2015, n=140.000).',
+    steps: [
+      'Tag fat i stang med overhåndsgreb, skulderbredde. Hop op.',
+      'Lad armene strækkes fuldt ud.',
+      'Hold skuldrene let aktive — ikke passivt hæng.',
+      'Stop: slip stangen.',
+    ],
+    tip: 'Chalk tilladt. Brug ikke strop-greb — det er præcis grebsstyrken vi måler.',
+    timer: true,
+    timerLabel: 'Stopur — dead hang',
+    fields: [{ key: 'dh_s', label: 'Tid (sekunder)', ph: 'f.eks. 45' }],
+    scoring: [
+      ['18–29 år', () => '> 60 sek.', () => '30–60 sek.', () => '< 30 sek.'],
+      ['30–49 år', () => '> 45 sek.', () => '20–45 sek.', () => '< 20 sek.'],
+      ['50+ år',   () => '> 30 sek.', () => '10–30 sek.', () => '< 10 sek.'],
+    ],
+  },
+  {
+    id: 'reaktion', icon: '⚡', num: 7,
+    name: 'REAKTIONSTID',
+    subtitle: 'Neurologisk hastighed & kognitiv funktion',
+    why: 'Reaktionstid afspejler hjernens behandlingshastighed og forudsiger kognitiv aldring. Deary & Der (2005) viste, at reaktionstid forklarer sammenhængen mellem kognition og dødelighed.',
+    steps: [
+      'Åbn humanenchmark.com → vælg "Reaction Time".',
+      'Klik/tryk så hurtigt som muligt når skærmen skifter fra rød til grøn.',
+      'Udfør 5 forsøg — notér gennemsnittet.',
+      'Gentag 3 gange med 2 min. pause. Brug middel-tallet.',
+    ],
+    tip: 'Test altid på samme tidspunkt af dagen ved gentest. Kaffe, søvn og stress påvirker resultatet.',
+    timer: false,
+    fields: [{ key: 'rt_ms', label: 'Gennemsnitlig reaktionstid (ms)', ph: 'f.eks. 218' }],
+    scoring: [
+      ['Alle aldre', () => '< 180 ms', () => '180–250 ms', () => '> 250 ms'],
+    ],
+  },
+  {
+    id: 'sitrise', icon: '🪑', num: 8,
+    name: 'FLOOR SIT-RISE TEST',
+    subtitle: 'Mobilitet, koordination & styrke',
+    why: 'Score ≤ 3/10 er forbundet med 5× højere risiko for tidlig død over 6 år (Brito et al., 2012, n=2.000). Testen måler styrke, mobilitet og koordination samlet i én bevægelse.',
+    steps: [
+      'Start stående. Sæt dig ned i krydsben med mindst mulig støtte.',
+      'Rej dig op igen med mindst mulig hjælp.',
+      'Start med 10 point. Træk 1 fra per støttepunkt (hånd, knæ, underarm) — nede og oppe.',
+      'Træk 0,5 fra per tydeligt balancetab. Brug bedste af 2 forsøg.',
+    ],
+    tip: 'Yogamåtte anbefales. Forbedres hurtigt med øvelse — retestning vil give fremgang alene.',
+    timer: false,
+    fields: [{ key: 'si_s', label: 'Score (0–10)', ph: 'f.eks. 7.5' }],
+    scoring: [
+      ['Score',   () => '8–10 point', () => '5–7 point', () => '< 5 point'],
+    ],
+  },
+  {
+    id: 'hrv', icon: '❤️', num: 9,
+    name: 'HVILEPULS + HRV',
+    subtitle: 'Hjertets sundhed & nervesystemets balance',
+    why: 'Hvilepuls < 60 bpm er forbundet med markant øget livslængde i store observationsstudier. HRV afspejler nervesystemets balance — lav HRV øger risiko for hjertesygdom og stressrelateret sygdom.',
+    steps: [
+      'Lig stille i sengen om morgenen inden du rejser dig. 5 min. ro.',
+      'Tæl hjerteslag i 60 sek. (finger på håndled/hals, eller smartwatch).',
+      'HRV: brug "Elite HRV" eller "HRV4Training" app (gratis). Mål inden du bevæger dig.',
+      'Mål 3 dage og brug gennemsnittet.',
+    ],
+    tip: 'HRV-tal er individuelle — fokus på din trend over tid, ikke sammenligning med andre. Alkohol og dårlig søvn sænker HRV markant.',
+    timer: false,
+    fields: [
+      { key: 'hv_p', label: 'Hvilepuls (bpm)', ph: 'f.eks. 58' },
+      { key: 'hv_h', label: 'HRV (ms) — valgfrit', ph: 'f.eks. 55' },
+    ],
+    scoring: [
+      ['Hvilepuls', () => '< 55 bpm', () => '55–70 bpm', () => '> 70 bpm'],
+      ['HRV',       () => '> 70 ms',  () => '40–70 ms',  () => '< 40 ms'],
+    ],
+  },
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let curIdx = 0;
+let vals = {};
+let profile = { name: '', age: 0, sex: '' };
+let timerInterval = null;
+let timerSec = 0;
+let timerRunning = false;
+
+// ═══════════════════════════════════════════
+// LOCALSTORAGE
+// ═══════════════════════════════════════════
+const LS_KEY = 'lc_test_v2';
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.profile) profile = d.profile;
+    if (d.vals) vals = d.vals;
+    if (d.profile?.name) document.getElementById('ob-name').value = d.profile.name;
+    if (d.profile?.age)  document.getElementById('ob-age').value  = d.profile.age;
+    if (d.profile?.sex)  document.getElementById('ob-sex').value  = d.profile.sex;
+  } catch(e) {}
+}
+
+function saveLocal() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ profile, vals, savedAt: new Date().toISOString() }));
+    const b = document.getElementById('saved-badge');
+    if (b) { b.style.display = 'block'; setTimeout(() => { b.style.display = 'none'; }, 4000); }
+  } catch(e) {
+    alert('Kunne ikke gemme — åbn filen direkte i Chrome eller Safari (ikke fra mail-app).');
+  }
+}
+
+function shareText() {
+  const result = calcBioAge(vals, profile.age, profile.sex);
+  const bio = result.age;
+  const delta = result.delta;
+  const sexLabel = profile.sex === 'f' ? 'Kvinde' : 'Mand';
+  let txt = '━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += 'LONGEVITY.CHRIS — Funktionel Alderstest\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += `Navn:  ${profile.name || '—'}\n`;
+  txt += `Alder: ${profile.age} år  |  Køn: ${sexLabel}\n`;
+  txt += `Dato:  ${new Date().toLocaleDateString('da-DK', {day:'numeric',month:'long',year:'numeric'})}\n`;
+  if (bio) {
+    txt += `\nEstimeret biologisk alder: ${bio} år`;
+    txt += ` (${delta >= 0 ? '+' : ''}${delta} år ift. kronologisk alder)\n`;
+  }
+  txt += '\n--- RESULTATER ---\n';
+  TESTS.forEach(t => {
+    const lines = t.fields.map(f => vals[f.key] ? `${f.label}: ${vals[f.key]}` : '').filter(Boolean);
+    if (lines.length) {
+      txt += `\n${t.icon} ${t.name}\n`;
+      lines.forEach(l => { txt += `   ${l}\n`; });
+    }
+  });
+  txt += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\n@longevity.chris';
+
+  // Try modern clipboard API first, fall back to execCommand
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt)
+      .then(() => alert('✓ Kopieret!\n\nSæt det ind i en besked til @longevity.chris på Instagram eller send det på mail.'))
+      .catch(() => fallbackCopy(txt));
+  } else {
+    fallbackCopy(txt);
+  }
+}
+
+function fallbackCopy(txt) {
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    alert('✓ Kopieret!\n\nSæt det ind i en besked til @longevity.chris.');
+  } catch(e) {
+    alert('Kunne ikke kopiere automatisk.\n\nMarkér og kopiér teksten manuelt:\n\n' + txt);
+  }
+  document.body.removeChild(ta);
+}
+
+// ═══════════════════════════════════════════
+// FLOW
+// ═══════════════════════════════════════════
+function startTest() {
+  profile.name = document.getElementById('ob-name').value.trim();
+  profile.age  = parseInt(document.getElementById('ob-age').value) || 30;
+  profile.sex  = document.getElementById('ob-sex').value || 'm';
+  document.getElementById('cover').classList.remove('active');
+  document.getElementById('tc').classList.add('active');
+  renderTest(0);
+}
+
+function saveCurrentFields() {
+  const t = TESTS[curIdx];
+  t.fields.forEach(f => {
+    const el = document.getElementById('f_' + f.key);
+    if (el) vals[f.key] = el.value;
+  });
+}
+
+function renderTest(idx) {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  curIdx = idx;
+  const t = TESTS[idx];
+  const total = TESTS.length;
+  const isMale = profile.sex !== 'f';
+
+  document.getElementById('nc').textContent = `${idx + 1} / ${total}`;
+  document.getElementById('pf').style.width = `${((idx + 1) / total) * 100}%`;
+
+  const timerHtml = t.timer ? `
+    <div class="timer-block">
+      <div class="timer-lbl">${t.timerLabel}</div>
+      <div class="timer-display" id="td">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn start" id="tb-start" onclick="toggleTimer()">Start</button>
+        <button class="tbtn" onclick="resetTimer()">Nulstil</button>
+      </div>
+    </div>` : '';
+
+  const scoringRows = t.scoring.map(row => {
+    const g = typeof row[1] === 'function' ? row[1](isMale) : row[1];
+    const y = typeof row[2] === 'function' ? row[2](isMale) : row[2];
+    const r = typeof row[3] === 'function' ? row[3](isMale) : row[3];
+    return `<tr>
+      <td>${row[0]}</td>
+      <td class="cg">${g}</td>
+      <td class="cy">${y}</td>
+      <td class="cr">${r}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tcontent').innerHTML = `
+    <div class="tpage">
+      <div class="test-chip-lbl">TEST ${t.num} / ${total}</div>
+      <h2 class="tname">${t.icon} ${t.name}</h2>
+      <p class="tsub">${t.subtitle}</p>
+      <div class="tbar"></div>
+
+      <div class="why-card">
+        <div class="why-lbl">Hvorfor?</div>
+        <p class="why-txt">${t.why}</p>
+      </div>
+
+      <p class="steps-lbl">Udførelse</p>
+      <div class="steps-list">
+        ${t.steps.map((s, i) => `
+          <div class="step-item">
+            <div class="snum">${i+1}</div>
+            <span class="stxt">${s}</span>
+          </div>`).join('')}
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-icon">💡</div>
+        <div><div class="tip-lbl">Tip</div><p class="tip-txt">${t.tip}</p></div>
+      </div>
+
+      ${timerHtml}
+
+      <p class="rec-lbl">📋 Registrér resultat</p>
+      <div class="rec-fields">
+        ${t.fields.map(f => `
+          <div class="fgroup">
+            <span class="flbl">${f.label}</span>
+            <input class="fi" id="f_${f.key}" type="text" inputmode="decimal"
+              placeholder="${f.ph}" value="${vals[f.key] || ''}"
+              onchange="vals['${f.key}']=this.value">
+          </div>`).join('')}
+      </div>
+
+      <p class="scr-lbl">Scoring</p>
+      <table class="scr-tbl">
+        <thead><tr>
+          <th>Alder</th>
+          <th class="cg">🟢 Fremragende</th>
+          <th class="cy">🟡 Gennemsnit</th>
+          <th class="cr">🔴 Fokus</th>
+        </tr></thead>
+        <tbody>${scoringRows}</tbody>
+      </table>
+
+      <div style="height:80px"></div>
+    </div>
+
+    <div class="nav-btns">
+      ${idx > 0 ? `<button class="btn-prev" onclick="saveCurrentFields();renderTest(${idx-1})">← Tilbage</button>` : ''}
+      <button class="btn-next" onclick="saveCurrentFields();${idx < total-1 ? `renderTest(${idx+1})` : 'showResults()'}">
+        ${idx < total-1 ? 'Næste →' : 'Se resultater →'}
+      </button>
+    </div>`;
+
+  window.scrollTo(0, 0);
+
+  if (t.timer) {
+    timerSec = t.timerDuration || 0;
+    timerRunning = false;
+    updateTimerDisplay();
+  }
+}
+
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+function updateTimerDisplay() {
+  const t = TESTS[curIdx];
+  const isCountdown = !!t.timerDuration;
+  const display = isCountdown ? t.timerDuration - timerSec : timerSec;
+  const m = Math.floor(Math.abs(display) / 60);
+  const s = Math.abs(display) % 60;
+  const el = document.getElementById('td');
+  if (el) el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function toggleTimer() {
+  const btn = document.getElementById('tb-start');
+  if (timerRunning) {
+    clearInterval(timerInterval); timerInterval = null;
+    timerRunning = false;
+    if (btn) btn.textContent = 'Fortsæt';
+    // Auto-fill stopwatch tests
+    const t = TESTS[curIdx];
+    if (!t.timerDuration && t.fields.length === 1) {
+      const key = t.fields[0].key;
+      const el = document.getElementById('f_' + key);
+      if (el && !el.value) { el.value = timerSec; vals[key] = String(timerSec); }
+    }
+  } else {
+    timerRunning = true;
+    if (btn) btn.textContent = 'Stop';
+    timerInterval = setInterval(() => {
+      timerSec++;
+      updateTimerDisplay();
+      const t = TESTS[curIdx];
+      if (t.timerDuration && timerSec >= t.timerDuration) {
+        clearInterval(timerInterval); timerInterval = null;
+        timerRunning = false;
+        if (btn) btn.textContent = 'Færdig!';
+        try { new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAA==').play(); } catch(e) {}
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval); timerInterval = null;
+  timerRunning = false; timerSec = 0;
+  const btn = document.getElementById('tb-start');
+  if (btn) btn.textContent = 'Start';
+  updateTimerDisplay();
+}
+
+// ═══════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════
+function showResults() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  document.getElementById('tc').classList.remove('active');
+  document.getElementById('rpage').classList.add('active');
+  window.scrollTo(0, 0);
+  saveLocal();
+
+  // Header
+  if (profile.name) document.getElementById('r-name').textContent = profile.name + ' · ' + profile.age + ' år';
+  document.getElementById('r-date').textContent = 'Testdato: ' + new Date().toLocaleDateString('da-DK', {day:'numeric',month:'long',year:'numeric'});
+
+  // Bio age
+  const { age: bio, delta, details } = calcBioAge(vals, profile.age, profile.sex);
+  const bnum = document.getElementById('ba-num');
+  const bdiff = document.getElementById('ba-diff');
+  if (bio) {
+    bnum.textContent = bio;
+    const diff = delta;
+    if (diff <= -2) {
+      bdiff.textContent = `${Math.abs(diff)} år yngre end din kronologiske alder`;
+      bdiff.className = 'bioage-diff young';
+    } else if (diff >= 2) {
+      bdiff.textContent = `${diff} år ældre end din kronologiske alder`;
+      bdiff.className = 'bioage-diff older';
+    } else {
+      bdiff.textContent = 'Matcher din kronologiske alder';
+      bdiff.className = 'bioage-diff match';
+    }
+  } else {
+    bnum.textContent = '?';
+    bdiff.textContent = 'Udfyld flere tests for at beregne';
+    bdiff.className = 'bioage-diff match';
+  }
+
+  // Counts
+  let g=0,y=0,r=0;
+  TESTS.forEach(t => {
+    const s = scoreTest(t.id, vals, profile.age, profile.sex);
+    if (s === 3) g++; else if (s === 2) y++; else if (s !== null) r++;
+  });
+  document.getElementById('cg').textContent = g;
+  document.getElementById('cy').textContent = y;
+  document.getElementById('cr').textContent = r;
+
+  // Result list
+  document.getElementById('rlist').innerHTML = TESTS.map(t => {
+    const s = scoreTest(t.id, vals, profile.age, profile.sex);
+    const dotCls = s === 3 ? 'dot-g' : s === 2 ? 'dot-y' : s !== null ? 'dot-r' : 'dot-n';
+    const scoreVals = t.fields.map(f => vals[f.key] ? `${f.label}: <strong style="color:var(--white)">${vals[f.key]}</strong>` : '').filter(Boolean).join(' · ');
+
+    // Balance asymmetry warning
+    let warning = '';
+    if (t.id === 'balance') {
+      const r = parseFloat(vals['ba_r']) || 0;
+      const l = parseFloat(vals['ba_l']) || 0;
+      if (r > 0 && l > 0 && Math.abs(r - l) >= 10) {
+        const diff = Math.abs(r - l).toFixed(0);
+        const weakSide = r < l ? 'højre' : 'venstre';
+        warning = `<div style="margin-top:4px;font-size:11px;color:var(--yellow);">⚠ ${diff} sek. forskel — ${weakSide} ben er markant svagere. Score baseres på svageste ben.</div>`;
+      }
+    }
+
+    return `<div class="rrow">
+      <div class="rrow-icon">${t.icon}</div>
+      <div class="rrow-body">
+        <div class="rrow-name">${t.name}</div>
+        <div class="rrow-val">${scoreVals || '<span style="opacity:.4">Ikke udfyldt</span>'}</div>
+        ${warning}
+      </div>
+      <div class="rrow-dot ${dotCls}"></div>
+    </div>`;
+  }).join('');
+
+  // Weight bars
+  document.getElementById('weight-bars').innerHTML = WEIGHTS.map(w => `
+    <div class="wrow">
+      <div class="wname">${w.label}</div>
+      <div class="wbar-wrap"><div class="wbar-fill" style="width:${w.w * 100}%"></div></div>
+      <div class="wpct">${Math.round(w.w * 100)}%</div>
+    </div>`).join('');
+
+  // Retest dates
+  const now = new Date();
+  document.getElementById('bd').value = now.toISOString().split('T')[0];
+  const next = new Date(now); next.setMonth(next.getMonth() + 3);
+  document.getElementById('rd').value = next.toISOString().split('T')[0];
+  document.getElementById('bd').addEventListener('change', () => {
+    const d = new Date(document.getElementById('bd').value);
+    d.setMonth(d.getMonth() + 3);
+    document.getElementById('rd').value = d.toISOString().split('T')[0];
+  });
+}
+
+function restartTest() {
+  // Clear state
+  Object.keys(vals).forEach(k => delete vals[k]);
+  profile = { name: '', age: 0, sex: '' };
+  // Clear localStorage
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+  // Reset form fields on cover
+  const n = document.getElementById('ob-name');
+  const a = document.getElementById('ob-age');
+  const s = document.getElementById('ob-sex');
+  if (n) n.value = '';
+  if (a) a.value = '';
+  if (s) s.value = '';
+  // Stop any running timer
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  // Switch screens
+  document.getElementById('rpage').classList.remove('active');
+  document.getElementById('tc').classList.remove('active');
+  document.getElementById('cover').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', loadFromStorage);
+</script>
+</body>
+</html>

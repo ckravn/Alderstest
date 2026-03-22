@@ -539,7 +539,7 @@
     </div>
 
     <div class="gdpr-legal">
-      Du kan til enhver tid anmode om sletning af dine data ved at skrive til <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2744674c5546514909434c">[email&#160;protected]</a></strong>.<br>
+      Du kan til enhver tid anmode om sletning af dine data ved at skrive til <strong>c@kravn.dk</strong>.<br>
       Dine data opbevares fortroligt og deles ikke med tredjepart.
     </div>
 
@@ -647,7 +647,7 @@
   <div class="r-handle-bottom">@longevity.chris</div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ═══════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════
@@ -1743,4 +1743,15 @@ function restartTest() {
   // Reset consents
   const c1 = document.getElementById('consent1');
   const c2 = document.getElementById('consent2');
-  const btn = document.getElementById('gdpr-bt
+  const btn = document.getElementById('gdpr-btn');
+  if (c1) c1.checked = false;
+  if (c2) c2.checked = false;
+  if (btn) btn.disabled = true;
+  window.scrollTo(0, 0);
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', loadFromStorage);
+</script>
+</body>
+</html>
